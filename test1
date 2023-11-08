@@ -1,0 +1,35 @@
+from web3 import Web3
+
+# Connect to an Ethereum node (specify your node's URL)
+w3 = Web3(Web3.HTTPProvider('https://your-node-url.com'))
+
+# Specify your private key and sender's address
+private_key = 'YOUR_PRIVATE_KEY'
+sender_address = 'YOUR_WALLET_ADDRESS'
+
+# Specify the recipient's address and the amount to send
+recipient_address = 'RECIPIENT_ADDRESS'
+amount_to_send_wei = w3.toWei(0.1, 'ether')  # Here, 0.1 ETH
+
+# Check the sender's balance
+balance_wei = w3.eth.getBalance(sender_address)
+balance_eth = w3.fromWei(balance_wei, 'ether')
+
+if balance_wei < amount_to_send_wei:
+    print('Insufficient funds in the sender's balance.')
+else:
+    # Create a transaction
+    transaction = {
+        'to': recipient_address,
+        'value': amount_to_send_wei,
+        'gas': 21000,  # Set the standard gas cost
+        'gasPrice': w3.toWei('50', 'gwei'),  # Set the gas price (you can adjust it)
+        'nonce': w3.eth.getTransactionCount(sender_address),
+    }
+
+    # Sign the transaction using the private key
+    signed_transaction = w3.eth.account.signTransaction(transaction, private_key)
+
+    # Send the transaction
+    tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
+    print(f'Transaction sent. Transaction hash: {tx_hash.hex()}')
